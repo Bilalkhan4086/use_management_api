@@ -1,11 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const adminRoute = require("./v1/routes/admin");
 const clientRoute = require("./v1/routes/client");
 const connectionDB = require("./v1/config/db");
 const errorHandler = require("./v1/middleware/error");
+
 require("dotenv").config("./.env");
 
 const app = express();
@@ -16,7 +18,7 @@ connectionDB();
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(cors("http://localhost:3000"));
 // adding routes
 
 app.use("/admin", adminRoute);

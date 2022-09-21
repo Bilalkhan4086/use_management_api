@@ -17,6 +17,7 @@ exports.sendCookieResponse = (user, res, status) => {
   }
 
   res.status(status).cookie("token", token, options).json({
+    role:user.role,
     success: true,
     token,
   });
