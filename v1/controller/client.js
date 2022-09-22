@@ -14,6 +14,16 @@ exports.loginClient = asyncHandler(async (req, res, next) => {
   if (!response) {
     return next(new ErrorHandler("No user found with this User Name", 404));
   }
+  if(response.role !== "client"){
+    return next(
+      new ErrorHandler("Client can only be login by this route", 400)
+    );
+  }
+  if(response.status === "Disabled"){
+    return next(
+      new ErrorHandler("You are blocked by admin so cannot access this route", 400)
+    );
+  }
   const match = await response.matchPassword(req.body.password);
   if (!match) {
     return next(new ErrorHandler("Invalid Credentials", 404));

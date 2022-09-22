@@ -5,6 +5,7 @@ const {
   getAdminDetails,
   addNewClient,
   getAllUserDetails,
+  changeClientStatus,
 } = require("../controller/admin");
 
 const router = express.Router();
@@ -17,6 +18,7 @@ router.get(
   authorizedRoles("admin"),
   getAllUserDetails
 );
-router.post("/client/create", addNewClient);
+router.post("/client/create",protected, authorizedRoles("admin"), addNewClient);
+router.put("/client/change-status",protected, authorizedRoles("admin"), changeClientStatus);
 
 module.exports = router;

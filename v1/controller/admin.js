@@ -37,6 +37,11 @@ exports.loginAdmin = asyncHandler(async (req, res, next) => {
       new ErrorHandler("No user found with this UserName or Password", 404)
     );
   }
+  if(response.role !== "admin"){
+    return next(
+      new ErrorHandler("Admin can only be login by this route", 400)
+    );
+  }
   const match = await response.matchPassword(req.body.password);
   if (!match) {
     return next(new ErrorHandler("Invalid Credentials", 404));
@@ -63,7 +68,7 @@ exports.getAllUserDetails = asyncHandler(async (req, res, next) => {
   if (!req.user) {
     return next(new ErrorHandler("User Not Allowed", 400));
   }
-  const response = await User.find();
+  const response = await User.find({role:{$eq:"client"}}).sort({"createdAt": -1});
   res.status(200).json({
     success: true,
     count: response.length,
@@ -74,6 +79,27 @@ exports.getAllUserDetails = asyncHandler(async (req, res, next) => {
 // adding new client by passing details like username and password
 
 exports.addNewClient = asyncHandler(async (req, res, next) => {
-  const response = await User.create(req.body);
-  this.sendCookieResponse(response, res, 200);
+  await User.create(req.body);
+  res.status(200).json({
+    success: true,
+  });
+});
+
+
+
+// changing client status
+
+exports.changeClientStatus =asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    return next(new ErrorHandler("User Not Allowed", 400));
+  }
+   await User.findOneAndUpdate({userName:req.body.userName},{
+    $set:{
+      status:req.body.status
+    }
+  })
+
+  res.status(200).json({
+    success: true,
+  });
 });

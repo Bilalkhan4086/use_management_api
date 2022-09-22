@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
     enum: ["client"],
     default: "client",
   },
+  status: {
+    type: String,
+    enum: ["Active","Disabled"],
+    default: "Active",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
