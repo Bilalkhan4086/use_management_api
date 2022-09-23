@@ -4,7 +4,7 @@ const ErrorHandler = require("../utils/ErrorHandler");
 
 // sending cookie response to client side
 
-exports.sendCookieResponse = (user, res, status) => {
+exports.sendCookieResponse = (user, res, status, refreshToken=null) => {
   let token = user.signJWTToken();
 
   let options = {
@@ -15,12 +15,20 @@ exports.sendCookieResponse = (user, res, status) => {
   if (process.env.NODE_ENV === "production") {
     options.secure = true;
   }
-
-  res.status(status).cookie("token", token, options).json({
+if(refreshToken === null){
+  res.status(status).json({
     role:user.role,
     success: true,
     token,
   });
+}else{
+  res.status(status).json({
+    role:user.role,
+    success: true,
+    token,
+    refreshToken
+  });
+}
 };
 
 // logging in super admin by passing credentials
@@ -47,7 +55,8 @@ exports.loginAdmin = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler("Invalid Credentials", 404));
   }
   response.password = undefined;
-  this.sendCookieResponse(response, res, 200);
+  const refreshTokeh = response.signJWTRefreshToken();
+  this.sendCookieResponse(response, res, 200 , refreshTokeh);
 });
 
 // getting admin details

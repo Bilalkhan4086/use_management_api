@@ -41,6 +41,14 @@ userSchema.methods.signJWTToken = function () {
   });
 };
 
+
+userSchema.methods.signJWTRefreshToken = function () {
+  return jwt.sign({ userName:this.userName }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIREE,
+  });
+};
+
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();

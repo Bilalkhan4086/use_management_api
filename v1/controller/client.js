@@ -29,7 +29,8 @@ exports.loginClient = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler("Invalid Credentials", 404));
   }
   response.password = undefined;
-  sendCookieResponse(response, res, 200);
+  const refreshTokeh = response.signJWTRefreshToken();
+  sendCookieResponse(response, res, 200 , refreshTokeh);
 });
 
 // getting admin details
