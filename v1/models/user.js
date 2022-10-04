@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config("../../.env");
+
 const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -10,6 +11,7 @@ const userSchema = new mongoose.Schema({
   userName: {
     type: String,
     required: [true, "User Name is required"],
+    unique: [true, "user should be unique"],
   },
   password: {
     type: String,
@@ -24,12 +26,21 @@ const userSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Active","Disabled"],
+    enum: ["Active", "Disabled"],
     default: "Active",
   },
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  fbAccessToken: {
+    type: [
+      {
+        accessToken: String,
+        accountId: String,
+      },
+    ],
+    required: [true, "Fb Access Token + Label are required fields"],
   },
   resetpasswordToken: String,
   resetpasswordExpires: Date,
@@ -41,13 +52,15 @@ userSchema.methods.signJWTToken = function () {
   });
 };
 
-
 userSchema.methods.signJWTRefreshToken = function () {
-  return jwt.sign({ userName:this.userName }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIREE,
-  });
+  return jwt.sign(
+    { userName: this.userName },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIREE,
+    }
+  );
 };
-
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {

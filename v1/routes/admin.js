@@ -18,7 +18,17 @@ router.get(
   authorizedRoles("admin"),
   getAllUserDetails
 );
-router.post("/client/create",protected, authorizedRoles("admin"), addNewClient);
-router.put("/client/change-status",protected, authorizedRoles("admin"), changeClientStatus);
+router.post(
+  "/client/create",
+  protected,
+  authorizedRoles("admin"),
+  addNewClient
+);
+router.put(
+  "/client/change-status",
+  protected,
+  authorizedRoles("admin"),
+  changeClientStatus
+);
 
 module.exports = router;

@@ -4,7 +4,7 @@ const ErrorHandler = require("../utils/ErrorHandler");
 
 // sending cookie response to client side
 
-exports.sendCookieResponse = (user, res, status, refreshToken=null) => {
+exports.sendCookieResponse = (user, res, status, refreshToken = null) => {
   let token = user.signJWTToken();
 
   let options = {
@@ -15,20 +15,21 @@ exports.sendCookieResponse = (user, res, status, refreshToken=null) => {
   if (process.env.NODE_ENV === "production") {
     options.secure = true;
   }
-if(refreshToken === null){
-  res.status(status).json({
-    role:user.role,
-    success: true,
-    token,
-  });
-}else{
-  res.status(status).json({
-    role:user.role,
-    success: true,
-    token,
-    refreshToken
-  });
-}
+  if (refreshToken === null) {
+    res.status(status).json({
+      role: user.role,
+      success: true,
+      token,
+    });
+  } else {
+    res.status(status).json({
+      role: user.role,
+      success: true,
+      token,
+      refreshToken,
+      fbAccessToken: user.fbAccessToken,
+    });
+  }
 };
 
 // logging in super admin by passing credentials
@@ -45,10 +46,8 @@ exports.loginAdmin = asyncHandler(async (req, res, next) => {
       new ErrorHandler("No user found with this UserName or Password", 404)
     );
   }
-  if(response.role !== "admin"){
-    return next(
-      new ErrorHandler("Admin can only be login by this route", 400)
-    );
+  if (response.role !== "admin") {
+    return next(new ErrorHandler("Admin can only be login by this route", 400));
   }
   const match = await response.matchPassword(req.body.password);
   if (!match) {
@@ -56,7 +55,7 @@ exports.loginAdmin = asyncHandler(async (req, res, next) => {
   }
   response.password = undefined;
   const refreshTokeh = response.signJWTRefreshToken();
-  this.sendCookieResponse(response, res, 200 , refreshTokeh);
+  this.sendCookieResponse(response, res, 200, refreshTokeh);
 });
 
 // getting admin details
@@ -77,7 +76,9 @@ exports.getAllUserDetails = asyncHandler(async (req, res, next) => {
   if (!req.user) {
     return next(new ErrorHandler("User Not Allowed", 400));
   }
-  const response = await User.find({role:{$eq:"client"}}).sort({"createdAt": -1});
+  const response = await User.find({ role: { $eq: "client" } }).sort({
+    createdAt: -1,
+  });
   res.status(200).json({
     success: true,
     count: response.length,
@@ -94,19 +95,20 @@ exports.addNewClient = asyncHandler(async (req, res, next) => {
   });
 });
 
-
-
 // changing client status
 
-exports.changeClientStatus =asyncHandler(async (req, res, next) => {
+exports.changeClientStatus = asyncHandler(async (req, res, next) => {
   if (!req.user) {
     return next(new ErrorHandler("User Not Allowed", 400));
   }
-   await User.findOneAndUpdate({userName:req.body.userName},{
-    $set:{
-      status:req.body.status
+  await User.findOneAndUpdate(
+    { userName: req.body.userName },
+    {
+      $set: {
+        status: req.body.status,
+      },
     }
-  })
+  );
 
   res.status(200).json({
     success: true,
