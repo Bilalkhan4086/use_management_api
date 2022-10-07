@@ -1,7 +1,8 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const User = require("../models/user");
+const fetch = require("node-fetch");
 const ErrorHandler = require("../utils/ErrorHandler");
-
+require("dotenv").config("../../.env");
 // sending cookie response to client side
 
 exports.sendCookieResponse = (user, res, status, refreshToken = null) => {
@@ -112,5 +113,26 @@ exports.changeClientStatus = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+  });
+});
+
+// getting long lasting access token for facebook business api
+
+exports.getLongLastingToken = asyncHandler(async (req, res, next) => {
+  let jsonres;
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v15.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${process.env.APP_ID}&client_secret=${process.env.APP_SECRET}&fb_exchange_token=${req.query.accessToken}`
+    );
+    jsonres = await response.json();
+  } catch (err) {
+    console.log("err", err.message);
+  }
+  if (jsonres.error) {
+    return next(new ErrorHandler(jsonres.error.message, 400));
+  }
+  res.status(200).json({
+    success: true,
+    longLastingToken: jsonres?.access_token,
   });
 });

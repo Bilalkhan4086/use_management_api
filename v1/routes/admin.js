@@ -6,6 +6,7 @@ const {
   addNewClient,
   getAllUserDetails,
   changeClientStatus,
+  getLongLastingToken,
 } = require("../controller/admin");
 
 const router = express.Router();
@@ -17,6 +18,12 @@ router.get(
   protected,
   authorizedRoles("admin"),
   getAllUserDetails
+);
+router.get(
+  "/longlastingtoken",
+  protected,
+  authorizedRoles("admin"),
+  getLongLastingToken
 );
 router.post(
   "/client/create",
