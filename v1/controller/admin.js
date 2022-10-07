@@ -28,7 +28,6 @@ exports.sendCookieResponse = (user, res, status, refreshToken = null) => {
       success: true,
       token,
       refreshToken,
-      fbAccessToken: user.fbAccessToken,
     });
   }
 };
